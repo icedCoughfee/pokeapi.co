@@ -7,8 +7,6 @@ defaults: &defaults
 jobs:
   build-and-test-and-deploy:
     <<: *defaults
-    docker:
-      - image: cibuilds/github:0.10
     steps:
     - checkout
     - run: npm install
@@ -19,13 +17,16 @@ jobs:
 
     # Trigger a new build of the deploy project
     - run: "curl -X POST --header \"Content-Type: application/json\" https://circleci.com/api/v1.1/project/github/PokeAPI/deploy/build?circle-token=$CIRCLECI_API_TOKEN"
-    - attach_workspace:
-        at: ./public
-    - run:
-        name: "Publish Release on GitHub"
-        command: |
-          VERSION=$(git rev-parse HEAD)
-          ghr -t ${GITHUB_TOKEN_ISSUED_BY_NARAMSIM} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./static_website.tar.gz
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=$(git rev-parse HEAD)
+            ghr -t ${GITHUB_TOKEN_ISSUED_BY_NARAMSIM} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} static_website.tar.gz
+
 
 workflows:
   version: 2
@@ -33,6 +34,12 @@ workflows:
   commit:
     jobs:
       - build-and-test-and-deploy
+          # filters:
+          #   branches:
+          #     only: master
+      - publish-github-release:
+          requires:
+            - build-and-test-and-deploy
           # filters:
           #   branches:
           #     only: master
