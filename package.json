@@ -19,6 +19,7 @@
         "gatsby-plugin-manifest": "^2.0.2-rc.1",
         "gatsby-plugin-react-helmet": "^3.0.12",
         "gatsby-plugin-react-svg": "^2.0.0-beta1",
+        "gatsby-plugin-remove-trailing-slashes": "^2.1.17",
         "gatsby-plugin-sass": "^2.0.11",
         "hash-sum": "^1.0.2",
         "marked": "^0.5.0",
